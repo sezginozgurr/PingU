@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.app.pingu.presentation.login.LoginScreenRoute
+import com.app.pingu.presentation.login.HomeScreenRoute
 import com.app.pingu.ui.theme.black
 import com.app.pingu.presentation.onboarding.OnboardingScreen
 
@@ -64,7 +64,7 @@ fun NavigationGraph(
         }
 
         composable<Destination.Login> {
-            LoginScreenRoute(
+            HomeScreenRoute(
                 navigateToVerificationOtp = {
                     navController.navigate(it) {
                         popUpTo<Destination.Login> { inclusive = true }

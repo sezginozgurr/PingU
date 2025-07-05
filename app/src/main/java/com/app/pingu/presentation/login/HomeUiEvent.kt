@@ -2,8 +2,8 @@ package com.app.pingu.presentation.login
 
 import kotlinx.serialization.Serializable
 
-sealed interface LoginUiEvent {
+sealed interface HomeUiEvent {
 
     @Serializable
-    data object NavigateVerificationOtp : LoginUiEvent
+    data object NavigateVerificationOtp : HomeUiEvent
 }
