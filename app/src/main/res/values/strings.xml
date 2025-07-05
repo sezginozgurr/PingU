@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">PingU</string>
+
+    <string name="generic_error">"Teknik Bir Hata Oluştu"</string>
+
+    <!--Onboarding Screen-->
+    <string name="onboarding_title">SiTaxi\'ye hoşgeldiniz</string>
+    <string name="onboarding_description">"SiTaxi ile şoförler olarak taksi ödemelerinizde güvenli ve pratik bir deneyim yaşarsınız."</string>
+    <string name="onboarding_spannable_text">güvenli ve pratik</string>
+    <string name="onboarding_subText">bir deneyim yaşarsınız.</string>
+    <string name="login_country_code">90</string>
+    <string name="onboarding_button">Get Started</string>
+    <string name="resend_code">Kodu Tekrar Gönder</string>
+    <string name="resend_code_timer">asdasdasd</string>
+    <string name="login_error_password">Teknik Bir Hata</string>
 </resources>

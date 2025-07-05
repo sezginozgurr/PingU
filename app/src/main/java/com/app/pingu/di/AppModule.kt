@@ -3,6 +3,12 @@ package com.app.pingu.di
 import android.content.Context
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.preferencesDataStoreFile
+import com.app.pingu.core.event.DefaultUiEventPublisher
+import com.app.pingu.core.event.UiEventPublisher
+import com.app.pingu.core.manager.AuthManager
+import com.app.pingu.utils.resource.ResourceProvider
+import com.app.sitaxi.core.manager.AuthManagerImpl
+import com.app.sitaxi.core.manager.SecureSharedPrefs
 import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
@@ -41,4 +47,22 @@ object AppModule {
         PreferenceDataStoreFactory.create {
             context.preferencesDataStoreFile("app_preferences")
         }
+
+    @Singleton
+    @Provides
+    fun provideEventPublisher(): DefaultUiEventPublisher {
+        return UiEventPublisher()
+    }
+
+    @Singleton
+    @Provides
+    fun provideResourceProvider(@ApplicationContext context: Context): ResourceProvider {
+        return ResourceProvider(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthManager(
+        securePrefs: SecureSharedPrefs
+    ): AuthManager = AuthManagerImpl(securePrefs)
 } 
