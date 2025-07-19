@@ -43,8 +43,6 @@ fun OnboardingScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val description = stringResource(R.string.onboarding_description)
-            val boldedText = stringResource(R.string.onboarding_spannable_text)
-            val resultDescription = buildBoldAnnotatedString(description, boldedText)
 
             Image(
                 painter = painterResource(id = R.drawable.ic_launcher_background),
@@ -59,7 +57,7 @@ fun OnboardingScreen(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             Text(
-                text = resultDescription,
+                text = description,
                 style = regularLightGray15,
                 textAlign = TextAlign.Center
             )
