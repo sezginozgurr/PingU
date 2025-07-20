@@ -65,7 +65,7 @@ fun NavigationGraph(
         }
 
         composable<Destination.Login> {
-            HomeScreen()
+            HomeScreenRoute{}
 
         }
     }

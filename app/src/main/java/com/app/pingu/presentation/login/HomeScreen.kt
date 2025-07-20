@@ -1,8 +1,8 @@
 package com.app.pingu.presentation.login
 
-import android.Manifest
 import android.content.Context
-import android.util.Log
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -10,36 +10,29 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.app.pingu.R
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
-import com.google.maps.android.compose.rememberCameraPositionState
-import androidx.core.content.ContextCompat
 import com.google.maps.android.compose.Marker
-import com.google.android.gms.maps.model.BitmapDescriptor
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Canvas as AndroidCanvas
-import android.graphics.drawable.BitmapDrawable
-import androidx.annotation.DrawableRes
-import com.app.pingu.R
+import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
+import kotlin.math.cos
+import kotlin.math.sin
+import android.graphics.Canvas as AndroidCanvas
 
 @Composable
 fun HomeScreenRoute(
@@ -54,84 +47,48 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val fusedLocationClient = remember {
-        LocationServices.getFusedLocationProviderClient(context)
-    }
-
-    var userLocation by remember { mutableStateOf<LatLng?>(null) }
-    var isLoading by remember { mutableStateOf(true) }
-    var hasLocationPermission by remember { mutableStateOf(false) }
-
-    val locationPermissionState = rememberPermissionState(
-        Manifest.permission.ACCESS_FINE_LOCATION
-    )
-
     val cameraPositionState = rememberCameraPositionState()
 
+    val mısırÇarşısıKonumu = LatLng(41.016431, 28.970083)
+    val userLocation = remember { mutableStateOf(mısırÇarşısıKonumu) }
+    val hasLocationPermission = remember { mutableStateOf(true) } // Doğrudan true, mock için
+    val isLoading = remember { mutableStateOf(false) }
+
     // Mock kullanıcılar
-    data class MockUser(val name: String, val latLng: LatLng, val avatarRes: Int)// val avatarRes: Int)
+    data class MockUser(val name: String, val latLng: LatLng, val avatarRes: Int)
+
     val mockAvatars = listOf(
-        R.drawable.person_1,
-        R.drawable.person_2,
-        R.drawable.person_3,
-        R.drawable.person_4,
-        R.drawable.person_5,
-        R.drawable.person_6
+        R.drawable.ic_user_first,
+        R.drawable.ic_user_second,
+        R.drawable.ic_user_third,
+        R.drawable.ic_user_fourth,
+        R.drawable.ic_user_fifth,
+        R.drawable.ic_user_fifth
     )
-    val mockUsers = remember(userLocation) {
-        if (userLocation == null) emptyList() else {
-            val baseLat = userLocation!!.latitude
-            val baseLng = userLocation!!.longitude
-            List(6) { i ->
-                val angle = Math.toRadians((360.0 / 6) * i)
-                val radius = 0.03 // yaklaşık 30km
-                val lat = baseLat + radius * Math.cos(angle)
-                val lng = baseLng + radius * Math.sin(angle)
-                MockUser(
-                    name = "Person_${i+1}",
-                    latLng = LatLng(lat, lng),
-                    avatarRes = mockAvatars[i % mockAvatars.size]
-                )
-            }
-        }
-    }
 
-    LaunchedEffect(locationPermissionState.status.isGranted) {
-        if (locationPermissionState.status.isGranted) {
-            hasLocationPermission = true
-            try {
-                fusedLocationClient.lastLocation
-                    .addOnSuccessListener { location ->
-                        if (location != null) {
-                            userLocation = LatLng(location.latitude, location.longitude)
-                        } else {
-                            userLocation = LatLng(41.0082, 28.9784) // İstanbul
-                        }
-                        isLoading = false
-                    }
-                    .addOnFailureListener { exception ->
-                        userLocation = LatLng(41.0082, 28.9784) // İstanbul
-                        isLoading = false
-                    }
-            } catch (e: SecurityException) {
-                userLocation = LatLng(41.0082, 28.9784) // İstanbul
-                isLoading = false
-            }
-        } else {
-            // Konum izni yoksa iste
-            locationPermissionState.launchPermissionRequest()
-            isLoading = false
-        }
-    }
+    val mockUsers = remember {
+        val baseLat = mısırÇarşısıKonumu.latitude
+        val baseLng = mısırÇarşısıKonumu.longitude
+        val radius = 0.002 // yaklaşık 1km
 
-    // Konum alındığında kamerayı o noktaya taşı
-    LaunchedEffect(userLocation) {
-        if (userLocation != null && hasLocationPermission) {
-            cameraPositionState.animate(
-                update = CameraUpdateFactory.newLatLngZoom(userLocation!!, 15f),
-                durationMs = 1000
+        List(6) { i ->
+            val angle = Math.toRadians((360.0 / 6) * i)
+            val lat = baseLat + radius * cos(angle)
+            val lng = baseLng + radius * sin(angle)
+            MockUser(
+                name = "Person_${i + 1}",
+                latLng = LatLng(lat, lng),
+                avatarRes = mockAvatars[i % mockAvatars.size]
             )
         }
+    }
+
+    // Kamerayı Mısır Çarşısı'na odakla
+    LaunchedEffect(Unit) {
+        cameraPositionState.animate(
+            update = CameraUpdateFactory.newLatLngZoom(userLocation.value, 15.5f),
+            durationMs = 1000
+        )
     }
 
     Surface(
@@ -139,7 +96,7 @@ fun HomeScreen(
         color = MaterialTheme.colorScheme.background
     ) {
         when {
-            isLoading -> {
+            isLoading.value -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -148,7 +105,7 @@ fun HomeScreen(
                 }
             }
 
-            !hasLocationPermission -> {
+            !hasLocationPermission.value -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -162,28 +119,27 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxSize(),
                     cameraPositionState = cameraPositionState,
                     properties = MapProperties(
-                        isMyLocationEnabled = hasLocationPermission,
+                        isMyLocationEnabled = hasLocationPermission.value,
                         mapType = MapType.NORMAL
                     )
                 ) {
-                    // Mock kullanıcı markerları
+                    // Kullanıcı konumu (ortadaki)
+                    Marker(
+                        state = rememberMarkerState(position = userLocation.value),
+                        title = "Ben",
+                        icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
+                    )
+
+                    // Diğer kullanıcılar
                     mockUsers.forEach { user ->
-                        Log.d("MockUser", "${user.name} - ${user.latLng}")
-                        Log.d("UserLocation", userLocation.toString())
                         Marker(
                             state = rememberMarkerState(position = user.latLng),
-                            title = "Rider",
-                            snippet = "Rider",
+                            title = user.name,
                             icon = getBitmapDescriptorFromDrawable(
                                 context = context,
-                                drawableResId = R.drawable.ic_delivery_1
+                                drawableResId = user.avatarRes
                             )
                         )
-                        /* Marker(
-                            state = com.google.maps.android.compose.rememberMarkerState(position = user.latLng),
-                            title = user.name,
-                            //icon = getBitmapDescriptorFromDrawable(context, user.avatarRes)
-                        ) */
                     }
                 }
             }
@@ -191,20 +147,8 @@ fun HomeScreen(
     }
 }
 
-fun bitmapDescriptorFromVector(context: Context, @DrawableRes vectorResId: Int): BitmapDescriptor {
-    val vectorDrawable = ContextCompat.getDrawable(context, vectorResId)
-    val bitmap = Bitmap.createBitmap(
-        vectorDrawable!!.intrinsicWidth,
-        vectorDrawable.intrinsicHeight,
-        Bitmap.Config.ARGB_8888
-    )
-    val canvas = Canvas(bitmap)
-    vectorDrawable.setBounds(0, 0, canvas.width, canvas.height)
-    vectorDrawable.draw(canvas)
-    return BitmapDescriptorFactory.fromBitmap(bitmap)
-}
 
-fun getBitmapDescriptorFromDrawable(context: android.content.Context, drawableResId: Int): BitmapDescriptor {
+fun getBitmapDescriptorFromDrawable(context: Context, drawableResId: Int): BitmapDescriptor {
     val drawable = ContextCompat.getDrawable(context, drawableResId)
     if (drawable is BitmapDrawable) {
         return BitmapDescriptorFactory.fromBitmap(drawable.bitmap)
