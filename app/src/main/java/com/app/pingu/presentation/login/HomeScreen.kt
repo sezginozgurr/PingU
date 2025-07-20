@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.app.pingu.R
+import com.app.pingu.core.components.UserInfoBottomSheet
 import com.app.pingu.core.components.UserInfoDialog
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -49,10 +50,13 @@ fun HomeScreenRoute(
     }
 
     selectedUser?.let { user ->
-        UserInfoDialog(
+        UserInfoBottomSheet(
             userName = user.name,
             userAvatar = user.avatarRes,
-            onDismiss = { },
+            userFavorites = user.favorites, // ← EKLENEN FAVORİLER
+            onDismiss = {
+                selectedUser = null // ← DIALOG’U KAPAT
+            },
             onMessageClick = {
                 Toast.makeText(context, "${user.name} kişisine mesaj atıldı", Toast.LENGTH_SHORT)
                     .show()
@@ -63,6 +67,7 @@ fun HomeScreenRoute(
             }
         )
     }
+
 }
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -79,10 +84,6 @@ fun HomeScreen(
     val hasLocationPermission = remember { mutableStateOf(true) } // Doğrudan true, mock için
     val isLoading = remember { mutableStateOf(false) }
 
-    // Mock kullanıcılar
-
-    val selectedUser = remember { mutableStateOf<MockUser?>(null) }
-
     val mockAvatars = listOf(
         R.drawable.ic_user_first,
         R.drawable.ic_user_second,
@@ -97,6 +98,15 @@ fun HomeScreen(
         val baseLng = mısırÇarşısıKonumu.longitude
         val radius = 0.002 // yaklaşık 1km
 
+        val allFavorites = listOf(
+            listOf("Futbol", "Kitap", "Kahve"),
+            listOf("Basketbol", "Seyahat", "Film"),
+            listOf("Müzik", "Yüzme", "Kitap"),
+            listOf("Yemek", "Film", "Koşu"),
+            listOf("Oyun", "Spor", "Kamp"),
+            listOf("Sinema", "Tiyatro", "Dizi")
+        )
+
         List(6) { i ->
             val angle = Math.toRadians((360.0 / 6) * i)
             val lat = baseLat + radius * cos(angle)
@@ -104,7 +114,8 @@ fun HomeScreen(
             MockUser(
                 name = "Person_${i + 1}",
                 latLng = LatLng(lat, lng),
-                avatarRes = mockAvatars[i % mockAvatars.size]
+                avatarRes = mockAvatars[i % mockAvatars.size],
+                favorites = allFavorites[i % allFavorites.size]
             )
         }
     }
